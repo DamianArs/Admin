@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react";
+import { Component } from "react";
+import buildGraphQLProvider from "ra-data-graphql-simple";
+import { Admin, Resource, ListGuesser } from "react-admin";
+import jsonServerProvider from "ra-data-json-server";
+import { ListGraph } from "./components/ListGraph";
+import { Dashboard } from "./components/Dashboard";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor() {
+    super();
+    this.state = { dataProvider: null };
+  }
+  componentDidMount() {
+    buildGraphQLProvider({
+      clientOptions: { uri: "http://localhost:4000" },
+    }).then((dataProvider) => this.setState({ dataProvider }));
+  }
+
+  render() {
+    const { dataProvider } = this.state;
+
+    if (!dataProvider) {
+      return <div>Loading</div>;
+    } else {
+      return (
+        <Admin dataProvider={dataProvider} dashboard={Dashboard}>
+          <Resource
+            name="Movies"
+            options={{ label: "Film" }}
+            list={ListGraph}
+          />
+        </Admin>
+      );
+    }
+  }
 }
 
 export default App;
